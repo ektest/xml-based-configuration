@@ -1,0 +1,97 @@
+package com.emrekoca.ch2;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+public class AccountDaoInMemoryImpl2 implements AccountDao {
+
+	private AccountService accountService;
+
+	public void setAccountService(AccountService accountService) {
+		// nobody call this to inject so it will not be injected runtime
+		// even-though bean is created see the application xml
+		this.accountService = accountService;
+	}
+
+	private Map<Long, Account> accountsMap = new HashMap<>();
+
+	{
+		Account account1 = new Account();
+		account1.setId(1L);
+		account1.setOwnerName("John");
+		account1.setBalance(10.0);
+
+		Account account2 = new Account();
+		account2.setId(2L);
+		account2.setOwnerName("Mary");
+		account2.setBalance(20.0);
+
+		accountsMap.put(account1.getId(), account1);
+		accountsMap.put(account2.getId(), account2);
+
+	}
+
+	@Override
+	public void insert(Account account) {
+		accountsMap.put(account.getId(), account);
+	}
+
+	@Override
+	public void update(Account account) {
+		accountsMap.put(account.getId(), account);
+	}
+
+	@Override
+	public void update(List<Account> accounts) {
+		for (Account account : accounts) {
+			update(account);
+		}
+	}
+
+	@Override
+	public void delete(long accountId) {
+		accountsMap.remove(accountId);
+	}
+
+	@Override
+	public Account find(long accountId) {
+		// Added this line to show the disadvantage of setter injection
+		// Some dependency injection may be injected at the time of runtime like this!
+		System.out.println("EMRE" + accountService.hashCode());
+		return accountsMap.get(accountId);
+	}
+
+	@Override
+	public List<Account> find(List<Long> accountIds) {
+		List<Account> accounts = new ArrayList<>();
+		for (Long id : accountIds) {
+			accounts.add(accountsMap.get(id));
+		}
+		return accounts;
+	}
+
+	@Override
+	public List<Account> find(String ownerName) {
+		List<Account> accounts = new ArrayList<>();
+		for (Account account : accountsMap.values()) {
+			if (ownerName.equals(account.getOwnerName())) {
+				accounts.add(account);
+			}
+		}
+		return accounts;
+	}
+
+	@Override
+	public List<Account> find(boolean locked) {
+		List<Account> accounts = new ArrayList<>();
+		for (Account account : accountsMap.values()) {
+			if (locked == account.isLocked()) {
+				accounts.add(account);
+			}
+		}
+		return accounts;
+	}
+
+}
