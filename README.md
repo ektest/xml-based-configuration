@@ -1,1 +1,1 @@
-# xml-based-configuration
+# xml-based-configuration/xml-based-autowiring
